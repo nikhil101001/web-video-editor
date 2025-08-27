@@ -37,18 +37,21 @@ export default function Home() {
           <div className="flex flex-col sm:flex-row gap-4 mt-2">
             <Button
               size="lg"
-              className="px-8 py-6 rounded-full bg-blue-600 hover:bg-blue-700 text-white"
+              className="px-8 py-6 rounded-full bg-blue-600 hover:bg-blue-700 "
             >
-              <Link href="/editor" className="font-medium">
+              <Link href="/editor" className="font-medium text-white">
                 Start Editing Now
               </Link>
             </Button>
             <Button
               variant="outline"
               size="lg"
-              className="px-8 py-6 rounded-full border-blue-500 text-blue-300 hover:bg-blue-950/30"
+              className="px-8 py-6 rounded-full border-blue-500 text-blue-300 hover:bg-blue-600/30"
             >
-              <Link href="#features" className="font-medium">
+              <Link
+                href="#features"
+                className="font-medium dark:text-white text-black"
+              >
                 Explore Features
               </Link>
             </Button>
@@ -70,17 +73,14 @@ export default function Home() {
           {/* Card 1: Timeline Editor */}
           {aboutApp.map((item, index) => (
             <CardContainer className="w-full h-full" key={index}>
-              <CardBody className="bg-zinc-900/90 border border-zinc-700 rounded-xl p-6 relative group/card w-full space-y-4 h-full">
-                <CardItem
-                  translateZ="50"
-                  className="text-2xl font-bold text-white"
-                >
+              <CardBody className="dark:bg-zinc-900/90 border border-zinc-700 rounded-xl p-6 relative group/card w-full space-y-4 h-full">
+                <CardItem translateZ="50" className="text-2xl font-bold">
                   {item.title}
                 </CardItem>
                 <CardItem
                   as="p"
                   translateZ="60"
-                  className="text-sm text-gray-300 max-w-sm"
+                  className="text-sm text-foreground/60 max-w-sm"
                 >
                   {item.description}
                 </CardItem>
@@ -100,11 +100,8 @@ export default function Home() {
       </section>
 
       {/* Features Section */}
-      <section
-        id="features"
-        className="w-full py-20 dark:bg-zinc-900 bg-zinc-100"
-      >
-        <div className="container mx-auto px-4">
+      <section id="features" className="container mx-auto px-4">
+        <div className="rounded-3xl py-20 px-8 md:px-12 dark:bg-zinc-900 bg-zinc-100 flex flex-col justify-center ">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">
             Powerful Features
           </h2>
@@ -116,7 +113,7 @@ export default function Home() {
             {features.map((feature, index) => (
               <div
                 key={index}
-                className="bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-700 rounded-xl p-6 shadow-md hover:shadow-blue-900/30 transition-all duration-300 hover:border-blue-600/50"
+                className="dark:bg-zinc-800/80 border border-zinc-700 rounded-xl p-6 shadow-md hover:shadow-blue-900/30 transition-all duration-300 hover:border-blue-600/50"
               >
                 <h3 className="text-xl font-semibold mb-3">{feature.title}</h3>
                 <p className="text-foreground/60">{feature.description}</p>
@@ -126,44 +123,21 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Testimonials Section */}
-      <section id="testimonials" className="w-full py-20">
-        <div className="container mx-auto px-4 mb-10">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">
-            What Users Say
-          </h2>
-          <p className="text-foreground/60 text-center max-w-2xl mx-auto mb-10">
-            Join thousands of creators who have transformed their video
-            production process
-          </p>
-        </div>
-
-        <div className="w-full">
-          <InfiniteMovingCards
-            items={testimonials}
-            direction="right"
-            speed="slow"
-            className="py-4"
-          />
-        </div>
-      </section>
-
       {/* CTA Section */}
-      <section className="w-full py-24 bg-gradient-to-r from-blue-900 to-indigo-900 text-white">
+      <section className="w-full py-12">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-6">
             Ready to Create Amazing Videos?
           </h2>
-          <p className="text-lg max-w-2xl mx-auto mb-8 text-gray-100">
+          <p className="text-lg max-w-2xl mx-auto mb-8 text-foreground/60">
             Join thousands of creators and start crafting professional videos
             today. No complex software to learn.
           </p>
+
           <div className="flex items-center justify-center">
-            <Link href="/editor" className="font-medium text-lg">
+            <Link href="/editor">
               <MovingBorderButton
-                containerClassName="bg-transparent"
-                borderClassName="bg-cyan-400/40"
-                className="px-8 py-4 bg-black/30 backdrop-blur-sm text-white font-medium rounded-full"
+                className="text-nowrap cursor-pointer"
                 duration={5000}
               >
                 Get Started for Free
@@ -174,12 +148,12 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="w-full py-10 bg-zinc-950 border-t border-zinc-800">
+      <footer className="w-full py-10 dark:bg-zinc-950 border-t border-foreground/10">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="mb-6 md:mb-0">
-              <p className="font-bold text-lg text-white">Web Video Editor</p>
-              <p className="text-sm text-gray-400">
+              <p className="font-bold text-lg ">Web Video Editor</p>
+              <p className="text-sm text-foreground/60">
                 Professional video editing for everyone
               </p>
             </div>
@@ -188,14 +162,14 @@ export default function Home() {
                 <Link
                   key={index}
                   href={item.link}
-                  className="text-sm text-gray-400 hover:text-blue-400 transition-colors"
+                  className="text-sm text-foreground/60 hover:text-blue-400 transition-colors"
                 >
                   {item.name}
                 </Link>
               ))}
             </div>
           </div>
-          <div className="mt-8 pt-8 border-t border-zinc-800 text-center text-sm text-gray-500">
+          <div className="mt-8 pt-8 border-t border-foreground/10 text-center text-sm text-foreground/60">
             <p>
               © {new Date().getFullYear()} Web Video Editor. All rights
               reserved.
