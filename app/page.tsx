@@ -2,12 +2,11 @@ import { FloatingNav } from "@/components/ui/floating-navbar";
 import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
 import { BackgroundLines } from "@/components/ui/background-lines";
 import { SparklesCore } from "@/components/ui/sparkles";
-import { InfiniteMovingCards } from "@/components/ui/infinite-moving-cards";
 import { CardContainer, CardBody, CardItem } from "@/components/ui/3d-card";
 import { Button as MovingBorderButton } from "@/components/ui/moving-border";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { aboutApp, features, navItems, testimonials } from "@/lib/data";
+import { aboutApp, features, navItems } from "@/lib/data";
 
 export default function Home() {
   return (
@@ -30,8 +29,14 @@ export default function Home() {
 
         <div className="container relative z-20 flex flex-col items-center text-center px-4">
           <div className="max-w-3xl mx-auto mb-10 space-y-6">
-            <TextGenerateEffect words="Professional Video Editing, Simplified" />
-            <TextGenerateEffect words="Create stunning videos with our powerful yet easy-to-use editor. Professional results without the learning curve." />
+            <TextGenerateEffect
+              words="Professional Video Editing, Simplified"
+              className="text-4xl"
+            />
+            <TextGenerateEffect
+              words="Create stunning videos with our powerful yet easy-to-use editor. Professional results without the learning curve."
+              className="text-lg text-foreground/60"
+            />
           </div>
 
           <div className="flex flex-col sm:flex-row gap-4 mt-2">
@@ -113,7 +118,7 @@ export default function Home() {
             {features.map((feature, index) => (
               <div
                 key={index}
-                className="dark:bg-zinc-800/80 border border-zinc-700 rounded-xl p-6 shadow-md hover:shadow-blue-900/30 transition-all duration-300 hover:border-blue-600/50"
+                className="bg-background dark:bg-zinc-800/80 border border-zinc-700 rounded-xl p-6 shadow-md hover:shadow-blue-900/30 transition-all duration-300 hover:border-blue-600/50"
               >
                 <h3 className="text-xl font-semibold mb-3">{feature.title}</h3>
                 <p className="text-foreground/60">{feature.description}</p>

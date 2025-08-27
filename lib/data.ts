@@ -8,49 +8,12 @@ export const navItems = [
     link: "#features",
   },
   {
-    name: "Testimonials",
-    link: "#testimonials",
-  },
-  {
     name: "Pricing",
     link: "#pricing",
   },
   {
     name: "Contact",
     link: "#contact",
-  },
-];
-
-export const testimonials = [
-  {
-    quote:
-      "This video editor transformed how I create content. It's intuitive yet powerful!",
-    name: "Alex Johnson",
-    title: "Content Creator",
-  },
-  {
-    quote:
-      "I've tried many editors, but this one strikes the perfect balance between features and simplicity.",
-    name: "Sarah Williams",
-    title: "YouTube Influencer",
-  },
-  {
-    quote:
-      "The timeline features and effects library are second to none. Highly recommended!",
-    name: "Michael Chen",
-    title: "Film Producer",
-  },
-  {
-    quote:
-      "This editor saved me hours of work with its smart automation features.",
-    name: "Priya Patel",
-    title: "Marketing Director",
-  },
-  {
-    quote:
-      "The collaborative features are game-changing for our remote video production team.",
-    name: "David Rodriguez",
-    title: "Creative Director",
   },
 ];
 
