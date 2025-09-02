@@ -1,7 +1,8 @@
 import React from "react";
+import { VideoEditor } from "./components/video-editor";
 
 const EditorPage = () => {
-  return <div>EditorPage</div>;
+  return <VideoEditor />;
 };
 
 export default EditorPage;

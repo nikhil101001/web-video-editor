@@ -7,7 +7,9 @@ import {
   useMotionValueEvent,
 } from "motion/react";
 import { cn } from "@/lib/utils";
-import { ThemeButton } from "../home/theme-button";
+
+import Link from "next/link";
+import { ModeToggle } from "./mode-toggle";
 
 export const FloatingNav = ({
   navItems,
@@ -76,14 +78,16 @@ export const FloatingNav = ({
             </a>
           ))}
 
-          <button className="border text-sm font-medium relative border-neutral-200 dark:border-white/[0.2] text-black dark:text-white px-4 py-2 rounded-full">
-            <span>Login</span>
-            <span className="absolute inset-x-0 w-1/2 mx-auto -bottom-px bg-gradient-to-r from-transparent via-blue-600 to-transparent  h-px" />
-          </button>
+          <Link href="/editor">
+            <button className="border text-sm font-medium relative border-neutral-200 dark:border-white/[0.2] text-black dark:text-white px-4 py-2 rounded-full cursor-pointer">
+              <span>Try it out</span>
+              <span className="absolute inset-x-0 w-1/2 mx-auto -bottom-px bg-gradient-to-r from-transparent via-blue-600 to-transparent  h-px" />
+            </button>
+          </Link>
         </div>
 
         <div className="absolute right-4 top-0">
-          <ThemeButton />
+          <ModeToggle />
         </div>
       </motion.div>
     </AnimatePresence>

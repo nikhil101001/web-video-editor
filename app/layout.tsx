@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Video Editor",
+  title: "Web Video Editor",
   description: "Web-based video editor",
 };
 
