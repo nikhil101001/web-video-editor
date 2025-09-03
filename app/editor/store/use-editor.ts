@@ -43,6 +43,7 @@ interface EditorState {
 
   // UI State
   selectedMenuOption: MenuOption;
+  propertyPanelSize: number;
 
   // Animation
   animations: Animation[];
@@ -83,6 +84,7 @@ interface EditorActions {
 
   // UI actions
   setSelectedMenuOption: (option: MenuOption) => void;
+  setPropertyPanelSize: (size: number) => void;
 
   // Animation actions
   addAnimation: (animation: Animation) => void;
@@ -99,6 +101,7 @@ interface EditorActions {
 
   // Export actions
   setExportSettings: (settings: Partial<ExportSettings>) => void;
+  setResolution: (width: number, height: number) => void;
   startExport: () => void;
   stopExport: () => void;
 
@@ -140,6 +143,7 @@ const initialState: EditorState = {
   playing: false,
   fps: initialFPS,
   selectedMenuOption: null,
+  propertyPanelSize: 25, // Default to 25% width
   animations: [],
   exportSettings: defaultExportSettings,
   isExporting: false,
@@ -252,6 +256,10 @@ export const useEditorStore = create<EditorState & EditorActions>()(
       set({ selectedMenuOption });
     },
 
+    setPropertyPanelSize: (propertyPanelSize) => {
+      set({ propertyPanelSize });
+    },
+
     // Animation actions
     addAnimation: (animation) => {
       set((state) => ({
@@ -352,6 +360,19 @@ export const useEditorStore = create<EditorState & EditorActions>()(
     setExportSettings: (settings) => {
       set((state) => ({
         exportSettings: { ...state.exportSettings, ...settings },
+        aspectRatio: settings.resolution
+          ? settings.resolution.width / settings.resolution.height
+          : state.aspectRatio,
+      }));
+    },
+
+    setResolution: (width, height) => {
+      set((state) => ({
+        exportSettings: {
+          ...state.exportSettings,
+          resolution: { width, height },
+        },
+        aspectRatio: width / height,
       }));
     },
 

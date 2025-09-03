@@ -164,7 +164,7 @@ export const VideoEditor = () => {
             {selectedMenuOption && !isMobile ? (
               <ResizablePanelGroup
                 direction="horizontal"
-                className="min-h-0 h-full"
+                className="min-h-0"
                 onLayout={(sizes) => {
                   if (sizes[0]) {
                     setPropertyPanelSize(sizes[0]);
@@ -176,16 +176,13 @@ export const VideoEditor = () => {
                   defaultSize={propertyPanelSize}
                   minSize={15}
                   maxSize={50}
-                  className="min-w-[280px] h-full"
+                  className="min-w-[280px]"
                 >
                   <PropertyPanel />
                 </ResizablePanel>
 
                 {/* Resize Handle */}
-                <ResizableHandle
-                  withHandle
-                  className="hover:bg-blue-500/50 w-0.5 opacity-0 hover:opacity-100 transition-all"
-                />
+                <ResizableHandle withHandle />
 
                 {/* Canvas Container */}
                 <ResizablePanel

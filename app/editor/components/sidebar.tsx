@@ -13,6 +13,7 @@ import {
   Layers,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 interface SidebarItem {
   id: string;
@@ -83,26 +84,25 @@ export const Sidebar: React.FC = () => {
   ];
 
   return (
-    <div className="w-20 bg-gray-800 border-r border-gray-700 flex flex-col items-center py-4 space-y-2">
+    <div className="md:w-20 w-full justify-center md:justify-normal border-r flex md:flex-col items-center p-2 gap-2">
       {sidebarItems.map((item) => {
         const Icon = item.icon;
         const isSelected = selectedMenuOption === item.id;
 
         return (
-          <button
+          <Button
             key={item.id}
             onClick={item.onClick}
+            variant="ghost"
             className={cn(
-              "w-12 h-12 flex items-center justify-center rounded-lg transition-colors",
-              "hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500",
-              isSelected
-                ? "bg-blue-600 text-white"
-                : "bg-gray-750 text-gray-300 hover:text-white"
+              "w-14 h-12 transition-colors text-foreground cursor-pointer flex flex-col justify-center items-center gap-1 p-2",
+              isSelected ? "bg-foreground/20!" : ""
             )}
             title={item.label}
           >
             <Icon size={20} />
-          </button>
+            <span className="text-[0.6rem]">{item.label}</span>
+          </Button>
         );
       })}
     </div>

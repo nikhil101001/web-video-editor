@@ -1,10 +1,18 @@
 import { useCallback, useEffect, useRef } from "react";
 import { useEditorStore } from "../store/use-editor";
 
+interface KeyboardShortcutsOptions {
+  onZoomIn?: () => void;
+  onZoomOut?: () => void;
+  onResetZoom?: () => void;
+}
+
 /**
  * Hook for handling keyboard shortcuts in the editor
  */
-export const useKeyboardShortcuts = () => {
+export const useKeyboardShortcuts = (
+  options: KeyboardShortcutsOptions = {}
+) => {
   const {
     undo,
     redo,
@@ -16,6 +24,8 @@ export const useKeyboardShortcuts = () => {
     selectedElement,
     playing,
   } = useEditorStore();
+
+  const { onZoomIn, onZoomOut, onResetZoom } = options;
 
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
@@ -77,6 +87,28 @@ export const useKeyboardShortcuts = () => {
           stop();
           break;
 
+        case "+":
+        case "=":
+          if (isModifierPressed && onZoomIn) {
+            event.preventDefault();
+            onZoomIn();
+          }
+          break;
+
+        case "-":
+          if (isModifierPressed && onZoomOut) {
+            event.preventDefault();
+            onZoomOut();
+          }
+          break;
+
+        case "0":
+          if (isModifierPressed && onResetZoom) {
+            event.preventDefault();
+            onResetZoom();
+          }
+          break;
+
         default:
           break;
       }
@@ -91,6 +123,9 @@ export const useKeyboardShortcuts = () => {
       removeElement,
       selectedElement,
       playing,
+      onZoomIn,
+      onZoomOut,
+      onResetZoom,
     ]
   );
 

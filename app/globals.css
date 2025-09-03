@@ -124,3 +124,28 @@
 * {
   scroll-behavior: smooth;
 }
+
+/* Resizable panel improvements */
+/* [data-panel-group-direction="horizontal"] {
+  transition: width 0.2s ease-in-out;
+}
+
+[data-panel-group-direction="vertical"] {
+  transition: height 0.2s ease-in-out;
+} */
+
+/* Smooth resize handle interaction */
+/* [data-slot="resizable-handle"]:hover {
+  background-color: rgba(59, 130, 246, 0.5);
+  transition: background-color 0.15s ease-in-out;
+} */
+
+/* Property panel smooth transitions */
+/* .property-panel-content {
+  transition: all 0.2s ease-in-out;
+} */
+
+/* Canvas responsiveness */
+/* .video-editor-canvas {
+  transition: transform 0.2s ease-in-out;
+} */

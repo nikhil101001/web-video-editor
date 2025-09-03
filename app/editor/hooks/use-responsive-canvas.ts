@@ -57,6 +57,15 @@ export const useResponsiveCanvas = ({
 
   const updateCanvasSize = useCallback(
     (containerWidth: number, containerHeight: number) => {
+      // Add safety checks for valid dimensions
+      if (containerWidth <= 0 || containerHeight <= 0) {
+        console.warn("Invalid container dimensions:", {
+          containerWidth,
+          containerHeight,
+        });
+        return;
+      }
+
       const newSize = calculateCanvasSize(containerWidth, containerHeight);
       setCanvasSize(newSize);
       setContainerSize({ width: containerWidth, height: containerHeight });
@@ -66,7 +75,10 @@ export const useResponsiveCanvas = ({
 
   const fitToContainer = useCallback(
     (containerWidth: number, containerHeight: number) => {
-      updateCanvasSize(containerWidth, containerHeight);
+      // Ensure dimensions are valid before updating
+      if (containerWidth > 0 && containerHeight > 0) {
+        updateCanvasSize(containerWidth, containerHeight);
+      }
     },
     [updateCanvasSize]
   );

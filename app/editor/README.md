@@ -2,6 +2,57 @@
 
 A comprehensive video editing application built with React, TypeScript, Zustand for state management, and Fabric.js for canvas manipulation.
 
+## Canvas and Aspect Ratio Management
+
+### Overview
+
+The video editor features a responsive canvas that automatically adapts to different screen sizes while maintaining the selected video aspect ratio. The canvas covers all available space except for the sidebar and timeline.
+
+### Key Features
+
+#### 1. Responsive Canvas
+
+- **Adaptive Layout**: Canvas automatically resizes to fill available space
+- **Aspect Ratio Preservation**: Maintains the selected video resolution aspect ratio
+- **Device Compatibility**: Works seamlessly across different screen sizes
+- **Auto-fit**: Never overflows - shrinks and expands as needed
+
+#### 2. Resolution Management
+
+- **Multiple Aspect Ratios**: Support for 16:9, 9:16, 1:1, 4:3, and 21:9
+- **Common Resolutions**: Predefined resolutions for each aspect ratio
+- **Custom Resolutions**: Manual width/height input for custom needs
+- **Export Resolution**: Maintains actual resolution settings for export
+
+#### 3. Canvas Controls
+
+- **Zoom Controls**: Zoom in/out with mouse or keyboard
+- **Fit to Container**: Auto-fit canvas to available space
+- **Scale Indicator**: Shows current zoom percentage
+- **Resolution Display**: Shows current project resolution
+
+### Keyboard Shortcuts
+
+- `Cmd/Ctrl + +`: Zoom in
+- `Cmd/Ctrl + -`: Zoom out
+- `Cmd/Ctrl + 0`: Reset zoom (fit to container)
+
+### Usage
+
+#### Changing Resolution
+
+1. Click on the "Export" panel in the right sidebar
+2. Use the "Aspect Ratio" dropdown to select desired ratio
+3. Choose from predefined resolutions or enter custom values
+4. Canvas will automatically update to maintain the new aspect ratio
+
+#### Canvas Behavior
+
+- **Editing View**: Canvas scales to fit screen with aspect ratio preserved
+- **Export**: Uses actual resolution settings regardless of canvas scale
+- **Responsive**: Automatically adjusts when window is resized
+- **Zoom**: Manual zoom control for detailed editing
+
 ## Features
 
 ### Core Functionality

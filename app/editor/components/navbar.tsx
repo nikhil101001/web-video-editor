@@ -2,21 +2,11 @@
 
 import React from "react";
 import { useEditorStore, useCanUndo, useCanRedo } from "../store/use-editor";
-import {
-  Undo2,
-  Redo2,
-  Play,
-  Pause,
-  Square,
-  Save,
-  FolderOpen,
-  Home,
-} from "lucide-react";
+import { Undo2, Redo2, Play, Pause, Square, Save, Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ModeToggle } from "@/components/ui/mode-toggle";
 import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
-import Link from "next/link";
+import { redirect } from "next/navigation";
 
 interface NavbarProps {
   projectId?: string;
@@ -42,24 +32,17 @@ export const Navbar: React.FC<NavbarProps> = ({ projectId }) => {
     saveProject();
   };
 
-  const handleHome = () => {
-    window.location.href = "/";
-  };
-
   return (
-    <div className="h-16 flex items-center justify-between px-4">
+    <div className="min-h-16 h-16 flex items-center justify-between px-4 border-b">
       {/* Left Section */}
       <div className="flex items-center space-x-4">
         <Button
           variant="ghost"
           size="sm"
-          onClick={handleHome}
           className="text-foreground"
-          asChild
+          onClick={() => redirect("/")}
         >
-          <Link href="/">
-            <Home size={18} />
-          </Link>
+          <Home size={18} />
         </Button>
 
         <div className="flex items-center space-x-2">
