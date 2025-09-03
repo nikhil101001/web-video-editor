@@ -43,7 +43,7 @@ export const Timeline: React.FC<TimelineProps> = ({ timeline }) => {
       if (timelineRef.current) {
         setIsDragging(true);
         const rect = timelineRef.current.getBoundingClientRect();
-        const x = e.clientX - rect.left;
+        const x = e.clientX - rect.left - 48; // Account for 48px offset
         const time = (x / timelineWidth) * maxTime;
         const clampedTime = Math.max(0, Math.min(time, maxTime));
         timeline.seekTo(clampedTime);
@@ -56,7 +56,7 @@ export const Timeline: React.FC<TimelineProps> = ({ timeline }) => {
     (e: MouseEvent) => {
       if (isDragging && timelineRef.current) {
         const rect = timelineRef.current.getBoundingClientRect();
-        const x = e.clientX - rect.left;
+        const x = e.clientX - rect.left - 48; // Account for 48px offset
         const time = (x / timelineWidth) * maxTime;
         const clampedTime = Math.max(0, Math.min(time, maxTime));
         timeline.seekTo(clampedTime);
@@ -111,7 +111,7 @@ export const Timeline: React.FC<TimelineProps> = ({ timeline }) => {
   };
 
   const renderElements = () => {
-    return editorElements.map((element) => {
+    return editorElements.map((element, index) => {
       const startPosition = (element.timeFrame.start / maxTime) * timelineWidth;
       const duration = element.timeFrame.end - element.timeFrame.start;
       const width = (duration / maxTime) * timelineWidth;
@@ -132,71 +132,77 @@ export const Timeline: React.FC<TimelineProps> = ({ timeline }) => {
           break;
       }
 
+      const trackIndex = index;
+      const trackTop = 60 + trackIndex * 40;
+
       return (
-        <div
-          key={element.id}
-          className="absolute h-8 rounded border-2 border-gray-700 flex items-center px-2 text-white text-xs font-medium cursor-pointer hover:border-white transition-colors"
-          style={{
-            left: startPosition,
-            width: Math.max(width, 20),
-            backgroundColor,
-            top: 60 + editorElements.indexOf(element) * 40,
-          }}
-          title={element.name}
-        >
-          <span className="truncate">{element.name}</span>
-        </div>
+        <React.Fragment key={element.id}>
+          {/* Track Background */}
+          <div
+            className="absolute w-full h-8 bg-gray-900/30 border-b border-gray-700/50"
+            style={{
+              left: -48,
+              top: trackTop,
+              width: timelineWidth + 48,
+            }}
+          />
+
+          {/* Track Label */}
+          <div
+            className="absolute w-8 h-8 flex items-center justify-center text-xs text-gray-400 font-medium bg-gray-800 border border-gray-700 rounded z-10"
+            style={{
+              left: -40,
+              top: trackTop,
+            }}
+          >
+            {trackIndex + 1}
+          </div>
+
+          {/* Element */}
+          <div
+            className="absolute h-8 rounded border-2 flex items-center px-2 text-white text-xs font-medium cursor-pointer hover:border-white transition-colors z-10"
+            style={{
+              left: startPosition,
+              width: Math.max(width, 20),
+              backgroundColor,
+              top: trackTop,
+            }}
+            title={element.name}
+          >
+            <span className="truncate">{element.name}</span>
+          </div>
+        </React.Fragment>
       );
     });
   };
 
   return (
-    <div className="h-full bg-gray-900 flex flex-col">
+    <div className="h-full flex flex-col">
       {/* Timeline Controls */}
-      <div className="h-12 bg-gray-800 border-b border-gray-700 flex items-center justify-between px-4">
+      <div className="h-12 border-b flex items-center justify-between px-4">
         <div className="flex items-center space-x-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={stop}
-            className="text-gray-300 hover:text-white"
-          >
+          <Button variant="ghost" size="sm" onClick={stop}>
             <SkipBack size={16} />
           </Button>
 
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={playing ? pause : play}
-            className="text-gray-300 hover:text-white"
-          >
+          <Button variant="ghost" size="sm" onClick={playing ? pause : play}>
             {playing ? <Pause size={16} /> : <Play size={16} />}
           </Button>
 
-          <div className="text-sm text-gray-300 font-mono">
+          <div className="text-sm font-mono">
             {formatTimeToMinSecMili(currentTimeInMs)} /{" "}
             {formatTimeToMinSecMili(maxTime)}
           </div>
         </div>
 
         <div className="flex items-center space-x-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleZoomOut}
-            className="text-gray-300 hover:text-white"
-          >
+          <Button variant="ghost" size="sm" onClick={handleZoomOut}>
             -
           </Button>
           <span className="text-xs text-gray-400">
             {Math.round(zoom * 100)}%
           </span>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleZoomIn}
-            className="text-gray-300 hover:text-white"
-          >
+          <Button variant="ghost" size="sm" onClick={handleZoomIn}>
             +
           </Button>
         </div>
@@ -206,25 +212,25 @@ export const Timeline: React.FC<TimelineProps> = ({ timeline }) => {
       <div className="flex-1 relative overflow-auto">
         <div
           ref={timelineRef}
-          className="relative h-full bg-gray-850 cursor-pointer"
-          style={{ width: Math.max(timelineWidth, 800) }}
+          className="relative h-full bg-gray-850 cursor-pointer pl-12"
+          style={{ width: Math.max(timelineWidth + 60, 800) }}
           onMouseDown={handleMouseDown}
         >
           {/* Time markers */}
-          <div className="absolute top-0 left-0 right-0 h-8 bg-gray-800">
+          <div className="absolute top-0 left-12 right-0 h-8">
             {renderTimeMarkers()}
           </div>
 
           {/* Playhead */}
           <div
-            className="absolute top-0 bottom-0 w-0.5 bg-red-500 z-20 pointer-events-none"
-            style={{ left: playheadPosition }}
+            className="absolute top-0 bottom-0 w-0.5 bg-blue-600 z-20 pointer-events-none"
+            style={{ left: playheadPosition + 48 }}
           >
-            <div className="absolute -top-1 -left-2 w-4 h-4 bg-red-500 rotate-45 transform origin-center" />
+            <div className="absolute -top-2 -left-[7px] w-4 h-4 bg-blue-600 rotate-45 transform origin-center" />
           </div>
 
           {/* Elements */}
-          <div className="absolute top-8 left-0 right-0 bottom-0">
+          <div className="absolute top-8 left-12 right-0 bottom-0">
             {renderElements()}
           </div>
         </div>

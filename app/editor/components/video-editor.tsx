@@ -11,14 +11,17 @@ import { Sidebar } from "./sidebar";
 import { Timeline } from "./timeline";
 import { Navbar } from "./navbar";
 import { PropertyPanel } from "./property-panel";
-import { ZoomControls } from "./zoom-controls";
-import { Button } from "@/components/ui/button";
-import { Settings } from "lucide-react";
 import {
   ResizablePanelGroup,
   ResizablePanel,
   ResizableHandle,
 } from "@/components/ui/resizable";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 export const VideoEditor = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -41,6 +44,7 @@ export const VideoEditor = () => {
   } = useCanvas();
 
   const [isCanvasInitialized, setIsCanvasInitialized] = useState(false);
+  const [timelinePanelSize, setTimelinePanelSize] = useState(25); // Track timeline panel size
 
   // Use the project's resolution settings for aspect ratio calculation
   const projectWidth = exportSettings.resolution.width;
@@ -70,23 +74,32 @@ export const VideoEditor = () => {
     const container = canvasContainerRef.current;
     const containerRect = container.getBoundingClientRect();
 
-    // Fit canvas to the available container space
-    fitToContainer(containerRect.width, containerRect.height);
+    // Ensure we have valid dimensions before updating
+    if (containerRect.width > 0 && containerRect.height > 0) {
+      // Fit canvas to the available container space
+      fitToContainer(containerRect.width, containerRect.height);
+    }
   }, [fitToContainer]);
 
-  // Handle window resize
+  // Handle window resize with improved debouncing
   useEffect(() => {
     const handleResize = () => {
-      // Add debouncing to avoid too frequent updates
+      // Clear previous timeout
       if (resizeTimeoutRef.current) {
         clearTimeout(resizeTimeoutRef.current);
       }
+
+      // Debounce resize updates
       resizeTimeoutRef.current = setTimeout(() => {
         updateCanvasSize();
-      }, 150);
+      }, 100);
     };
 
-    handleResize(); // Initial call
+    // Initial update with a small delay to ensure DOM is ready
+    const initialTimeout = setTimeout(() => {
+      updateCanvasSize();
+    }, 100);
+
     window.addEventListener("resize", handleResize);
 
     return () => {
@@ -94,40 +107,61 @@ export const VideoEditor = () => {
       if (resizeTimeoutRef.current) {
         clearTimeout(resizeTimeoutRef.current);
       }
+      clearTimeout(initialTimeout);
     };
   }, [updateCanvasSize]);
 
-  // Initialize canvas when component mounts or canvas size changes
+  // Initialize canvas only once when conditions are met
   useEffect(() => {
-    if (
+    // Ensure we have all required conditions before initializing
+    const shouldInitialize =
       canvasRef.current &&
-      canvasSize.width &&
-      canvasSize.height &&
-      !isCanvasInitialized
-    ) {
-      // Add a small delay to ensure DOM is ready
+      canvasSize.width > 0 &&
+      canvasSize.height > 0 &&
+      !isCanvasInitialized &&
+      !canvas;
+
+    if (shouldInitialize) {
       const timeoutId = setTimeout(() => {
-        if (canvasRef.current && !canvas) {
-          initializeCanvas(
-            canvasRef.current,
-            canvasSize.width,
-            canvasSize.height
-          );
-          setIsCanvasInitialized(true);
+        // Double-check conditions haven't changed during timeout
+        if (canvasRef.current && !canvas && !isCanvasInitialized) {
+          console.log("Initializing canvas with size:", canvasSize);
+          try {
+            initializeCanvas(
+              canvasRef.current,
+              canvasSize.width,
+              canvasSize.height
+            );
+            setIsCanvasInitialized(true);
+          } catch (error) {
+            console.error("Failed to initialize canvas:", error);
+            // Reset state to allow retry
+            setIsCanvasInitialized(false);
+          }
         }
-      }, 50);
+      }, 150);
 
       return () => clearTimeout(timeoutId);
     }
-  }, [canvasSize, initializeCanvas, isCanvasInitialized, canvas]);
+  }, [
+    canvasSize.width,
+    canvasSize.height,
+    initializeCanvas,
+    isCanvasInitialized,
+    canvas,
+  ]);
 
-  // Update fabric canvas size when responsive canvas size changes
+  // Update fabric canvas size when responsive canvas size changes (only if canvas is initialized)
   useEffect(() => {
-    if (isCanvasInitialized && canvasRef.current && canvas) {
-      // Add a small delay to ensure canvas is fully ready
+    if (
+      isCanvasInitialized &&
+      canvas &&
+      canvasSize.width > 0 &&
+      canvasSize.height > 0
+    ) {
       const timeoutId = setTimeout(() => {
         updateFabricCanvasSize(canvasSize.width, canvasSize.height);
-      }, 100);
+      }, 50);
 
       return () => clearTimeout(timeoutId);
     }
@@ -147,6 +181,40 @@ export const VideoEditor = () => {
     setSelectedMenuOption(null);
   }, [setSelectedMenuOption]);
 
+  // Canvas component to avoid duplication
+  const CanvasComponent = () => (
+    <div
+      ref={canvasContainerRef}
+      className="h-full flex items-center justify-center p-4 relative overflow-hidden bg-foreground/5"
+      onClick={handleOutsideClick}
+    >
+      <div className="relative max-w-full max-h-full">
+        {!isCanvasInitialized && (
+          <div className="absolute inset-0 flex items-center justify-center bg-gray-50 border border-gray-300 rounded-sm">
+            <div className="text-gray-500">Loading canvas...</div>
+          </div>
+        )}
+        <canvas
+          ref={canvasRef}
+          width={canvasSize.width}
+          height={canvasSize.height}
+          style={{
+            backgroundColor,
+            width: "100%",
+            height: "100%",
+            maxWidth: "100%",
+            maxHeight: "100%",
+            objectFit: "contain",
+            display: "block",
+            opacity: isCanvasInitialized ? 1 : 0,
+            transition: "opacity 0.3s ease-in-out",
+          }}
+          className="shadow-lg video-editor-canvas"
+        />
+      </div>
+    </div>
+  );
+
   return (
     <div className="h-screen flex flex-col w-full overflow-hidden">
       {/* Navbar */}
@@ -159,144 +227,101 @@ export const VideoEditor = () => {
 
         {/* Canvas Area - This will take all remaining space */}
         <div className="flex-1 flex flex-col min-w-0">
-          <div className="flex-1 flex min-h-0 relative">
-            {/* Desktop Resizable Panel Group */}
-            {selectedMenuOption && !isMobile ? (
-              <ResizablePanelGroup
-                direction="horizontal"
-                className="min-h-0 h-full"
-                onLayout={(sizes) => {
-                  if (sizes[0]) {
-                    setPropertyPanelSize(sizes[0]);
-                  }
-                }}
-              >
-                {/* Property Panel - Resizable */}
-                <ResizablePanel
-                  defaultSize={propertyPanelSize}
-                  minSize={15}
-                  maxSize={50}
-                  className="min-w-[280px] h-full"
-                >
-                  <PropertyPanel />
-                </ResizablePanel>
-
-                {/* Resize Handle */}
-                <ResizableHandle
-                  withHandle
-                  className="hover:bg-blue-500/50 w-0.5 opacity-0 hover:opacity-100 transition-all"
-                />
-
-                {/* Canvas Container */}
-                <ResizablePanel
-                  defaultSize={100 - propertyPanelSize}
-                  minSize={50}
-                  className="relative"
-                >
-                  <div
-                    ref={canvasContainerRef}
-                    className="h-full flex items-center justify-center p-4 relative"
-                    onClick={handleOutsideClick}
-                  >
-                    <div className="relative">
-                      <canvas
-                        ref={canvasRef}
-                        width={canvasSize.width}
-                        height={canvasSize.height}
-                        style={{
-                          backgroundColor,
-                          maxWidth: "100%",
-                          maxHeight: "100%",
-                          display: "block",
-                        }}
-                        className="border border-gray-300 shadow-lg rounded-sm video-editor-canvas"
-                      />
-
-                      {/* Canvas overlay for showing actual video resolution info */}
-                      <div className="absolute top-2 left-2 bg-black bg-opacity-75 text-white text-xs px-2 py-1 rounded">
-                        {projectWidth} × {projectHeight} (
-                        {(projectWidth / projectHeight).toFixed(2)})
-                      </div>
-
-                      {/* Scale indicator */}
-                      <div className="absolute top-2 right-2 bg-black bg-opacity-75 text-white text-xs px-2 py-1 rounded">
-                        {Math.round(canvasSize.scale * 100)}%
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Zoom Controls */}
-                  <ZoomControls
-                    scale={canvasSize.scale}
-                    onZoomIn={zoomIn}
-                    onZoomOut={zoomOut}
-                    onResetZoom={resetZoom}
-                    className="absolute bottom-4 right-4"
-                  />
-                </ResizablePanel>
-              </ResizablePanelGroup>
-            ) : (
-              /* Canvas Container when no property panel is shown or on mobile */
-              <div
-                ref={canvasContainerRef}
-                className="flex-1 flex items-center justify-center p-4 min-h-0 relative"
-                onClick={handleOutsideClick}
-              >
-                <div className="relative">
-                  <canvas
-                    ref={canvasRef}
-                    width={canvasSize.width}
-                    height={canvasSize.height}
-                    style={{
-                      backgroundColor,
-                      maxWidth: "100%",
-                      maxHeight: "100%",
-                      display: "block",
-                    }}
-                    className="border border-gray-300 shadow-lg rounded-sm"
-                  />
-
-                  {/* Canvas overlay for showing actual video resolution info */}
-                  <div className="absolute top-2 left-2 bg-black bg-opacity-75 text-white text-xs px-2 py-1 rounded">
-                    {projectWidth} × {projectHeight} (
-                    {(projectWidth / projectHeight).toFixed(2)})
-                  </div>
-
-                  {/* Scale indicator */}
-                  <div className="absolute top-2 right-2 bg-black bg-opacity-75 text-white text-xs px-2 py-1 rounded">
-                    {Math.round(canvasSize.scale * 100)}%
-                  </div>
-                </div>
-
-                {/* Zoom Controls */}
-                <ZoomControls
-                  scale={canvasSize.scale}
-                  onZoomIn={zoomIn}
-                  onZoomOut={zoomOut}
-                  onResetZoom={resetZoom}
-                  className="absolute bottom-4 right-4"
-                />
-
-                {/* Mobile Property Panel Indicator */}
-                {selectedMenuOption && isMobile && (
-                  <Button
-                    onClick={() => setSelectedMenuOption(selectedMenuOption)}
-                    className="absolute top-4 left-4 z-10"
-                    size="sm"
-                    variant="secondary"
-                  >
-                    <Settings className="h-4 w-4 mr-2" />
+          {selectedMenuOption && isMobile && (
+            <Dialog
+              open={true}
+              onOpenChange={() => setSelectedMenuOption(null)}
+            >
+              <DialogContent className="max-w-[95vw] max-h-[80vh] overflow-auto">
+                <DialogHeader>
+                  <DialogTitle className="capitalize">
                     {selectedMenuOption} Properties
-                  </Button>
+                  </DialogTitle>
+                </DialogHeader>
+                <PropertyPanel />
+              </DialogContent>
+            </Dialog>
+          )}
+
+          {/* Timeline - Resizable */}
+          <ResizablePanelGroup
+            direction="vertical"
+            className="h-full"
+            onLayout={(sizes) => {
+              if (sizes[1]) {
+                setTimelinePanelSize(sizes[1]);
+                // Trigger canvas resize when timeline size changes
+                setTimeout(() => {
+                  updateCanvasSize();
+                }, 100);
+              }
+            }}
+          >
+            {/* Canvas and Property Panel Area */}
+            <ResizablePanel defaultSize={75} minSize={40}>
+              <div className="h-full flex min-h-0 relative">
+                {/* Desktop Resizable Panel Group */}
+                {selectedMenuOption && !isMobile ? (
+                  <ResizablePanelGroup
+                    direction="horizontal"
+                    className="min-h-0 h-full"
+                    onLayout={(sizes) => {
+                      if (sizes[0]) {
+                        setPropertyPanelSize(sizes[0]);
+                        // Trigger canvas resize when property panel size changes
+                        setTimeout(() => {
+                          updateCanvasSize();
+                        }, 50);
+                      }
+                    }}
+                  >
+                    {/* Property Panel - Resizable */}
+                    <ResizablePanel
+                      defaultSize={propertyPanelSize}
+                      minSize={15}
+                      maxSize={50}
+                      className="min-w-[280px] h-full"
+                    >
+                      <PropertyPanel />
+                    </ResizablePanel>
+
+                    {/* Resize Handle */}
+                    <ResizableHandle
+                      withHandle
+                      className="hover:bg-blue-500/50 w-0.5 opacity-0 hover:opacity-100 transition-all"
+                    />
+
+                    {/* Canvas Container */}
+                    <ResizablePanel
+                      defaultSize={100 - propertyPanelSize}
+                      minSize={50}
+                      className="relative"
+                    >
+                      <CanvasComponent />
+                    </ResizablePanel>
+                  </ResizablePanelGroup>
+                ) : (
+                  /* Canvas Container when no property panel is shown or on mobile */
+                  <div className="flex-1 min-h-0 relative">
+                    <CanvasComponent />
+                  </div>
                 )}
               </div>
-            )}
-          </div>
+            </ResizablePanel>
 
-          {/* Timeline - Fixed height */}
-          <div className="h-64 border-t overflow-auto">
-            <Timeline timeline={timeline} />
-          </div>
+            {/* Resize Handle for Timeline */}
+            <ResizableHandle
+              withHandle
+              className="hover:bg-blue-500/50 h-0.5 opacity-0 hover:opacity-100 transition-all"
+            />
+
+            {/* Timeline Panel - Resizable */}
+            <ResizablePanel defaultSize={25} minSize={15} maxSize={50}>
+              <div className="h-full border-t overflow-auto">
+                <Timeline timeline={timeline} />
+              </div>
+            </ResizablePanel>
+          </ResizablePanelGroup>
         </div>
       </div>
     </div>

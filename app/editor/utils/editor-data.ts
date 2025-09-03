@@ -2,7 +2,7 @@ import { ExportSettings, ProjectData } from "../types";
 
 export const originalWidth = 1920;
 export const originalHeight = 1080;
-export const backgroundColor = "#111111";
+export const backgroundColor = "#000000";
 export const initialMaxTime = 30000;
 export const initialFPS = 60;
 export const defaultMaxHistorySize = 50;
