@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { useEditorStore, useCanUndo, useCanRedo } from "../store/use-editor";
+import { useEditorStore, useCanUndo, useCanRedo } from "../store/editor-store";
 import { Undo2, Redo2, Play, Pause, Square, Save, Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ModeToggle } from "@/components/ui/mode-toggle";

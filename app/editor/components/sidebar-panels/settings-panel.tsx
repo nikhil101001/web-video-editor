@@ -5,13 +5,13 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { ResolutionSelector } from "../resolution-selector";
 
-const ExportPanel: React.FC = () => {
+const SettingsPanel = () => {
   const { exportSettings, setExportSettings, startExport, isExporting } =
     useEditorStore();
 
   return (
     <div className="p-4">
-      <h3 className="text-xs font-semibold mb-4">Export Video</h3>
+      <h3 className="text-xs font-semibold mb-4">Project Settings</h3>
 
       <div className="space-y-6">
         {/* Resolution Settings */}
@@ -72,4 +72,4 @@ const ExportPanel: React.FC = () => {
   );
 };
 
-export default ExportPanel;
+export default SettingsPanel;

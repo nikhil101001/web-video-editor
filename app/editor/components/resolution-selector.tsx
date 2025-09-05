@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useEditorStore } from "../store/use-editor";
+import { useEditorStore } from "../store/editor-store";
 import {
   VIDEO_RESOLUTIONS,
   ASPECT_RATIOS,

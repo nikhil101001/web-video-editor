@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { useEditorStore } from "../store/use-editor";
+import { useEditorStore } from "../store/editor-store";
 import {
   Video,
   Image,
@@ -79,6 +79,15 @@ export const Sidebar: React.FC = () => {
       onClick: () =>
         setSelectedMenuOption(
           selectedMenuOption === "export" ? null : "export"
+        ),
+    },
+    {
+      id: "settings",
+      label: "Settings",
+      icon: Settings,
+      onClick: () =>
+        setSelectedMenuOption(
+          selectedMenuOption === "settings" ? null : "settings"
         ),
     },
   ];

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef } from "react";
-import { useEditorStore } from "../store/use-editor";
+import { useEditorStore } from "../store/editor-store";
 
 interface KeyboardShortcutsOptions {
   onZoomIn?: () => void;

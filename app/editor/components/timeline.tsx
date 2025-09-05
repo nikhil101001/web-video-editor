@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useRef, useCallback, useState, useEffect } from "react";
-import { useEditorStore } from "../store/use-editor";
+import { useEditorStore } from "../store/editor-store";
 import { formatTimeToMinSecMili } from "../utils";
 import { Play, Pause, SkipBack, SkipForward } from "lucide-react";
 import { Button } from "@/components/ui/button";

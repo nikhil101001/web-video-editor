@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useEditorStore } from "../../store/use-editor";
+import { useEditorStore } from "../../store/editor-store";
 import { Plus, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 

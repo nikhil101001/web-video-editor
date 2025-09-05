@@ -1,5 +1,5 @@
 import { Plus, Upload } from "lucide-react";
-import { useEditorStore } from "../../store/use-editor";
+import { useEditorStore } from "../../store/editor-store";
 import { Button } from "@/components/ui/button";
 
 const AudioPanel: React.FC = () => {

@@ -1,4 +1,4 @@
-import * as fabric from "fabric";
+import * as PIXI from "pixi.js";
 import {
   EditorElement,
   VideoEditorElement,
@@ -55,44 +55,47 @@ export const debounce = <T extends (...args: any[]) => any>(
   };
 };
 
-// Fabric.js utilities
-export class FabricUtils {
-  static setFabricObjectProperties(fabricObject: any, element: EditorElement) {
-    fabricObject.set({
-      left: element.placement.x,
-      top: element.placement.y,
-      scaleX: element.placement.scaleX,
-      scaleY: element.placement.scaleY,
-      angle: element.placement.rotation,
-      selectable: true,
-      hasControls: true,
-      hasBorders: true,
-    });
+// PixiJS utilities
+export class PixiUtils {
+  static setPixiObjectProperties(
+    pixiObject: PIXI.Container,
+    element: EditorElement
+  ) {
+    pixiObject.position.set(element.placement.x, element.placement.y);
+    pixiObject.scale.set(element.placement.scaleX, element.placement.scaleY);
+    pixiObject.rotation = (element.placement.rotation * Math.PI) / 180; // Convert to radians
+    pixiObject.eventMode = "static";
+    pixiObject.cursor = "pointer";
   }
 
-  static applyEffect(fabricObject: any, effect: Effect) {
-    // Simplified effect application - can be expanded later
-    console.log("Applying effect:", effect.type, "to object:", fabricObject);
+  static applyEffect(pixiObject: PIXI.Container, effect: Effect) {
+    // Simplified effect application - can be expanded with filters later
+    console.log("Applying effect:", effect.type, "to object:", pixiObject);
   }
 
   static async createVideoElement(
     src: string,
     elementId: string
-  ): Promise<any> {
+  ): Promise<PIXI.Sprite | null> {
     return new Promise((resolve, reject) => {
       const video = document.createElement("video");
       video.src = src;
       video.crossOrigin = "anonymous";
       video.muted = true;
       video.playsInline = true;
+      video.loop = true;
 
       video.addEventListener("loadedmetadata", () => {
         try {
-          const fabricImage = new fabric.Image(video as any, {
-            left: 100,
-            top: 100,
-          });
-          resolve(fabricImage);
+          const texture = PIXI.Texture.from(video);
+          const sprite = new PIXI.Sprite(texture);
+
+          sprite.x = 100;
+          sprite.y = 100;
+          sprite.width = Math.min(video.videoWidth, 300);
+          sprite.height = Math.min(video.videoHeight, 200);
+
+          resolve(sprite);
         } catch (error) {
           reject(error);
         }
@@ -106,32 +109,46 @@ export class FabricUtils {
     });
   }
 
-  static async createImageElement(src: string): Promise<any> {
-    return new Promise((resolve, reject) => {
-      fabric.Image.fromURL(src, {
-        crossOrigin: "anonymous",
-      })
-        .then((img: any) => {
-          img.set({
-            left: 100,
-            top: 100,
-          });
-          resolve(img);
-        })
-        .catch(reject);
-    });
+  static async createImageElement(src: string): Promise<PIXI.Sprite | null> {
+    try {
+      const texture = await PIXI.Assets.load(src);
+      const sprite = new PIXI.Sprite(texture);
+
+      sprite.x = 100;
+      sprite.y = 100;
+
+      // Scale to reasonable size
+      const maxWidth = 300;
+      const maxHeight = 200;
+      const scale = Math.min(
+        maxWidth / texture.width,
+        maxHeight / texture.height,
+        1
+      );
+      sprite.scale.set(scale);
+
+      return sprite;
+    } catch (error) {
+      console.error("Failed to create image element:", error);
+      return null;
+    }
   }
 
-  static createTextElement(text: string, options: any = {}): any {
-    return new fabric.IText(text, {
-      left: 100,
-      top: 100,
+  static createTextElement(text: string, options: any = {}): PIXI.Text {
+    const style = new PIXI.TextStyle({
       fontSize: options.fontSize || 40,
       fontFamily: options.fontFamily || "Arial",
       fill: options.color || "#ffffff",
       fontWeight: options.fontWeight || "normal",
+      align: options.align || "center",
       ...options,
     });
+
+    const textObject = new PIXI.Text(text, style);
+    textObject.x = options.x || 100;
+    textObject.y = options.y || 100;
+
+    return textObject;
   }
 }
 
@@ -155,33 +172,40 @@ export const isAudioFile = (filename: string): boolean => {
   return audioExtensions.includes(getFileExtension(filename).toLowerCase());
 };
 
-// Canvas utilities
-export const getCanvasCenter = (canvas: any): { x: number; y: number } => {
+// PixiJS utilities
+export const getStageCenter = (
+  app: PIXI.Application
+): { x: number; y: number } => {
   return {
-    x: (canvas.width || 0) / 2,
-    y: (canvas.height || 0) / 2,
+    x: app.screen.width / 2,
+    y: app.screen.height / 2,
   };
 };
 
-export const fitObjectToCanvas = (object: any, canvas: any, padding = 50) => {
-  const canvasWidth = canvas.width || 0;
-  const canvasHeight = canvas.height || 0;
+export const fitObjectToStage = (
+  object: PIXI.Container,
+  app: PIXI.Application,
+  padding = 50
+) => {
+  const stageWidth = app.screen.width;
+  const stageHeight = app.screen.height;
+  const bounds = object.getBounds();
 
-  const objectWidth = object.getScaledWidth();
-  const objectHeight = object.getScaledHeight();
+  const objectWidth = bounds.width;
+  const objectHeight = bounds.height;
 
-  const scaleX = (canvasWidth - padding * 2) / objectWidth;
-  const scaleY = (canvasHeight - padding * 2) / objectHeight;
+  const scaleX = (stageWidth - padding * 2) / objectWidth;
+  const scaleY = (stageHeight - padding * 2) / objectHeight;
   const scale = Math.min(scaleX, scaleY, 1); // Don't scale up
 
-  object.set({
-    scaleX: scale,
-    scaleY: scale,
-  });
+  object.scale.set(scale);
 
-  if (object.center) {
-    object.center();
-  }
+  // Center the object
+  const center = getStageCenter(app);
+  object.position.set(
+    center.x - (objectWidth * scale) / 2,
+    center.y - (objectHeight * scale) / 2
+  );
 };
 
 // Animation utilities

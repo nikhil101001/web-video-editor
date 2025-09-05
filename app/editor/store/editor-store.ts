@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import * as fabric from "fabric";
+import * as PIXI from "pixi.js";
 import {
   EditorElement,
   MenuOption,
@@ -21,8 +21,8 @@ import {
 } from "../utils/editor-data";
 
 interface EditorState {
-  // Canvas
-  canvas: fabric.Canvas | null;
+  // PixiJS Application
+  pixiApp: PIXI.Application | null;
   backgroundColor: string;
   aspectRatio: number;
 
@@ -63,8 +63,8 @@ interface EditorState {
 }
 
 interface EditorActions {
-  // Canvas actions
-  setCanvas: (canvas: fabric.Canvas | null) => void;
+  // PixiJS actions
+  setPixiApp: (app: PIXI.Application | null) => void;
   setBackgroundColor: (color: string) => void;
 
   // Element actions
@@ -130,7 +130,7 @@ interface EditorActions {
 }
 
 const initialState: EditorState = {
-  canvas: null,
+  pixiApp: null,
   backgroundColor: backgroundColor,
   aspectRatio: originalWidth / originalHeight,
   editorElements: [],
@@ -158,21 +158,19 @@ export const useEditorStore = create<EditorState & EditorActions>()(
   (set, get) => ({
     ...initialState,
 
-    // Canvas actions
-    setCanvas: (canvas) => {
-      set({ canvas });
-      if (canvas) {
-        canvas.backgroundColor = get().backgroundColor;
-        canvas.renderAll();
+    // PixiJS actions
+    setPixiApp: (pixiApp) => {
+      set({ pixiApp });
+      if (pixiApp) {
+        pixiApp.stage.eventMode = "static";
       }
     },
 
     setBackgroundColor: (backgroundColor) => {
       set({ backgroundColor, isDirty: true });
-      const { canvas } = get();
-      if (canvas) {
-        canvas.backgroundColor = backgroundColor;
-        canvas.renderAll();
+      const { pixiApp } = get();
+      if (pixiApp) {
+        pixiApp.renderer.background.color = backgroundColor;
       }
     },
 
@@ -474,22 +472,24 @@ export const useEditorStore = create<EditorState & EditorActions>()(
 
     // Utility actions
     refreshElements: () => {
-      const { canvas, editorElements } = get();
-      if (!canvas) return;
+      const { pixiApp, editorElements } = get();
+      if (!pixiApp) return;
 
-      canvas.clear();
+      // Clear the stage
+      pixiApp.stage.removeChildren();
+
+      // Re-add all elements
       editorElements.forEach((element) => {
-        if (element.fabricObject) {
-          canvas.add(element.fabricObject);
+        if (element.pixiObject) {
+          pixiApp.stage.addChild(element.pixiObject);
         }
       });
-      canvas.renderAll();
     },
 
     clearAll: () => {
       set({
         ...initialState,
-        canvas: get().canvas, // Keep the canvas reference
+        pixiApp: get().pixiApp, // Keep the PixiJS app reference
       });
       get().refreshElements();
     },
@@ -501,7 +501,7 @@ export const useEditorElements = () =>
   useEditorStore((state) => state.editorElements);
 export const useSelectedElement = () =>
   useEditorStore((state) => state.selectedElement);
-export const useCanvas = () => useEditorStore((state) => state.canvas);
+export const usePixiApp = () => useEditorStore((state) => state.pixiApp);
 export const useCurrentTime = () =>
   useEditorStore((state) => state.currentTimeInMs);
 export const useIsPlaying = () => useEditorStore((state) => state.playing);

@@ -1,9 +1,9 @@
-import { FabricImage, FabricObject } from "fabric";
+import * as PIXI from "pixi.js";
 
 // Base types
 export type EditorElementBase<T extends string, P> = {
   readonly id: string;
-  fabricObject?: FabricObject;
+  pixiObject?: PIXI.Container;
   name: string;
   readonly type: T;
   placement: Placement;
@@ -17,7 +17,8 @@ export type VideoEditorElement = EditorElementBase<
   {
     src: string;
     elementId: string;
-    imageObject?: FabricImage;
+    videoElement?: HTMLVideoElement;
+    sprite?: PIXI.Sprite;
     effect: Effect;
     volume: number;
     muted: boolean;
@@ -29,7 +30,7 @@ export type ImageEditorElement = EditorElementBase<
   {
     src: string;
     elementId: string;
-    imageObject?: FabricImage;
+    sprite?: PIXI.Sprite;
     effect: Effect;
   }
 >;
@@ -150,6 +151,7 @@ export type MenuOption =
   | "effects"
   | "animations"
   | "export"
+  | "settings"
   | null;
 
 // video formats

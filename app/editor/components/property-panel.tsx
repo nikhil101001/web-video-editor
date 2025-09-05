@@ -1,6 +1,6 @@
 "use client";
 
-import { useEditorStore } from "../store/use-editor";
+import { useEditorStore } from "../store/editor-store";
 import VideoPanel from "./sidebar-panels/video-panel";
 import ImagePanel from "./sidebar-panels/image-panel";
 import AudioPanel from "./sidebar-panels/audio-panel";
@@ -8,6 +8,7 @@ import TextPanel from "./sidebar-panels/text-panel";
 import EffectsPanel from "./sidebar-panels/effects-panel";
 import AnimationsPanel from "./sidebar-panels/animation-panel";
 import ExportPanel from "./sidebar-panels/export-panel";
+import SettingsPanel from "./sidebar-panels/settings-panel";
 
 export const PropertyPanel: React.FC = () => {
   const { selectedMenuOption } = useEditorStore();
@@ -28,6 +29,8 @@ export const PropertyPanel: React.FC = () => {
         return <AnimationsPanel />;
       case "export":
         return <ExportPanel />;
+      case "settings":
+        return <SettingsPanel />;
       default:
         return (
           <div className="p-4 text-center text-gray-500">
