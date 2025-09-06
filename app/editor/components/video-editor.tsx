@@ -25,19 +25,15 @@ import {
 
 export const VideoEditor = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const canvasContainerRef = useRef<HTMLDivElement>(null);
-  const resizeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const isMobile = useMobile();
 
   const {
     backgroundColor,
     selectedMenuOption,
     setSelectedMenuOption,
-    exportSettings,
     propertyPanelSize,
     setPropertyPanelSize,
     pixiApp,
-    maxTime,
   } = useEditorStore();
 
   const { initializeEditor, disposeEditor, updateCanvasSize } = useEditor();
@@ -58,17 +54,17 @@ export const VideoEditor = () => {
 
   // Initialize PIXI editor on mount
   useEffect(() => {
-    const initEditor = async () => {
-      if (canvasRef.current && canvasSize.width > 0 && canvasSize.height > 0) {
-        const success = await initializeEditor(canvasRef.current, {
-          width: canvasSize.width,
-          height: canvasSize.height,
-          backgroundColor,
-        });
+    if (!canvasRef.current) return;
 
-        if (success) {
-          setIsCanvasInitialized(true);
-        }
+    const initEditor = async () => {
+      const success = await initializeEditor(canvasRef.current, {
+        width: canvasSize.width,
+        height: canvasSize.height,
+        backgroundColor,
+      });
+
+      if (success) {
+        setIsCanvasInitialized(true);
       }
     };
 

@@ -23,8 +23,12 @@ import {
 interface EditorState {
   // PixiJS Application
   pixiApp: PIXI.Application | null;
+
+  // editor settings
+  canvasWidth: number;
+  canvasHeight: number;
   backgroundColor: string;
-  aspectRatio: number;
+  resolution: { width: number; height: number };
 
   // Elements
   editorElements: EditorElement[];
@@ -132,7 +136,6 @@ interface EditorActions {
 const initialState: EditorState = {
   pixiApp: null,
   backgroundColor: backgroundColor,
-  aspectRatio: originalWidth / originalHeight,
   editorElements: [],
   selectedElement: null,
   videos: [],
